@@ -1191,9 +1191,38 @@ function setupBannerClose() {
 }
 
 function getChicagoTime() {
-  // Get current time in Chicago timezone
-  const chicagoTime = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Chicago' }));
-  return chicagoTime;
+  // Get current time and convert to Chicago timezone properly
+  const now = new Date();
+  
+  // Get Chicago time using proper timezone conversion
+  // This creates a date formatter that outputs in Chicago timezone
+  const chicagoTimeString = now.toLocaleString('en-US', { 
+    timeZone: 'America/Chicago',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+  
+  // Parse the Chicago time string components
+  // Format: "MM/DD/YYYY, HH:mm:ss"
+  const [datePart, timePart] = chicagoTimeString.split(', ');
+  const [month, day, year] = datePart.split('/');
+  const [hours, minutes, seconds] = timePart.split(':');
+  
+  // Create a date object representing this exact time
+  // We'll use this to get hours, minutes, seconds in Chicago time
+  return {
+    hours: parseInt(hours),
+    minutes: parseInt(minutes),
+    seconds: parseInt(seconds),
+    date: parseInt(day),
+    month: parseInt(month),
+    year: parseInt(year)
+  };
 }
 
 function formatTimeRemaining(hours, minutes, seconds) {
@@ -1205,10 +1234,10 @@ function formatTimeRemaining(hours, minutes, seconds) {
 }
 
 function getSessionStatus() {
-  const now = getChicagoTime();
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const seconds = now.getSeconds();
+  const chicagoTime = getChicagoTime();
+  const hours = chicagoTime.hours;
+  const minutes = chicagoTime.minutes;
+  const seconds = chicagoTime.seconds;
   const currentTimeInMinutes = hours * 60 + minutes + seconds / 60;
   
   // Europe session: 2:00 AM - 6:00 AM (120 - 360 minutes)
@@ -1265,7 +1294,7 @@ function getSessionStatus() {
     
   } else {
     // Before both sessions or between sessions or after US session
-    let nextEuStart, nextUsStart;
+    let nextEuStart;
     
     if (currentTimeInMinutes < euStart) {
       // Before EU session (same day)
@@ -1282,13 +1311,28 @@ function getSessionStatus() {
     const euMins = Math.floor(nextEuStart % 60);
     const euSecs = Math.floor((nextEuStart % 1) * 60);
     
-    // Time between EU start and US start is always 6.5 hours
-    const timeBetweenSessions = usStart - euEnd;
-    const sessionGapHours = Math.floor(timeBetweenSessions / 60);
-    const sessionGapMins = Math.floor(timeBetweenSessions % 60);
+    // Calculate time until US session start
+    let nextUsStart;
+    if (currentTimeInMinutes < usStart) {
+      // Same day US session
+      nextUsStart = usStart - currentTimeInMinutes;
+    } else {
+      // Next day US session
+      nextUsStart = (24 * 60) - currentTimeInMinutes + usStart;
+    }
     
-    message = `Europe session нээгдэхэд ${formatTimeRemaining(euHours, euMins, euSecs)} үлдлээ. `;
-    message += `Америк session ${sessionGapHours} цаг ${sessionGapMins} минутын дараа нээгдэнэ.`;
+    const usHours = Math.floor(nextUsStart / 60);
+    const usMins = Math.floor(nextUsStart % 60);
+    const usSecs = Math.floor((nextUsStart % 1) * 60);
+    
+    // Show closer session first
+    if (nextUsStart < nextEuStart) {
+      message = `Америк session нээгдэхэд ${formatTimeRemaining(usHours, usMins, usSecs)} үлдлээ. `;
+      message += `Europe session нээгдэхэд ${formatTimeRemaining(euHours, euMins, euSecs)} үлдлээ.`;
+    } else {
+      message = `Europe session нээгдэхэд ${formatTimeRemaining(euHours, euMins, euSecs)} үлдлээ. `;
+      message += `Америк session нээгдэхэд ${formatTimeRemaining(usHours, usMins, usSecs)} үлдлээ.`;
+    }
   }
   
   return message;
