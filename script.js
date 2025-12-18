@@ -1135,7 +1135,7 @@ function getSessionStatus() {
       message = `Америк session ${usOpenedMins} минутын өмнө нээгдсэн байна. `;
     }
     message += `Хаагдахад ${formatTimeRemaining(usCloseHours, usCloseMins, usCloseSecs)} үлдлээ. `;
-    message += `Europe session ${euNextHours} цагийн дараа эхэлнэ.`;
+    message += `Europe session ${euNextHours} цагийн дараа нээгдэнэ.`;
     
   } else {
     // Before both sessions or between sessions or after US session
@@ -1162,7 +1162,7 @@ function getSessionStatus() {
     const sessionGapMins = Math.floor(timeBetweenSessions % 60);
     
     message = `Europe session нээгдэхэд ${formatTimeRemaining(euHours, euMins, euSecs)} үлдлээ. `;
-    message += `Америк session ${sessionGapHours} цаг ${sessionGapMins} минутын дараа эхэлнэ.`;
+    message += `Америк session ${sessionGapHours} цаг ${sessionGapMins} минутын дараа нээгдэнэ.`;
   }
   
   return message;
@@ -1179,3 +1179,4 @@ function startSessionTimer() {
   updateSessionBanner(); // Initial update
   setInterval(updateSessionBanner, 1000); // Update every second
 }
+
