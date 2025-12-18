@@ -37,6 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
   restoreExpectationStates(); // Restore expectation UI states
   startSessionTimer(); // Start the trading session countdown
   setupBannerClose(); // Setup banner close button
+  startTimestampUpdater(); // Start periodic timestamp updates
 });
 
 // ============================================
@@ -206,10 +207,24 @@ function setupDragAndDrop() {
         if (isDraggingFromCell && draggedElement) {
           e.target.appendChild(draggedElement);
           saveState(); // Save after moving
+          
+          // Update ticker timestamp
+          const cellId = e.target.getAttribute('data-cell');
+          if (cellId) {
+            const ticker = cellId.split('-')[0];
+            updateTickerTimestamp(ticker);
+          }
         } else {
           // If dragging from panel, create new icon element
           createDroppedIcon(e.target, draggedIconType);
           saveState(); // Save after creating
+          
+          // Update ticker timestamp
+          const cellId = e.target.getAttribute('data-cell');
+          if (cellId) {
+            const ticker = cellId.split('-')[0];
+            updateTickerTimestamp(ticker);
+          }
         }
       }
     }
@@ -258,6 +273,9 @@ function createDroppedIcon(zone, iconType, iconId = null, tradeState = 'none') {
   deleteBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     
+    // Get the cell ID before removing the icon
+    const cellId = iconWrapper.closest('.drop-zone')?.getAttribute('data-cell');
+    
     // Re-enable pointer events on all sibling icons before removing
     const parentCell = iconWrapper.parentElement;
     if (parentCell) {
@@ -269,6 +287,12 @@ function createDroppedIcon(zone, iconType, iconId = null, tradeState = 'none') {
     
     iconWrapper.remove();
     saveState(); // Save after deletion
+    
+    // Update ticker timestamp
+    if (cellId) {
+      const ticker = cellId.split('-')[0];
+      updateTickerTimestamp(ticker);
+    }
   });
 
   // Create BUY/SELL buttons container
@@ -285,6 +309,13 @@ function createDroppedIcon(zone, iconType, iconId = null, tradeState = 'none') {
     e.stopPropagation();
     toggleTradeState(iconWrapper, 'buy');
     updateActionButtonsAppearance(iconWrapper, buyBtn, sellBtn);
+    
+    // Update ticker timestamp
+    const cellId = iconWrapper.closest('.drop-zone')?.getAttribute('data-cell');
+    if (cellId) {
+      const ticker = cellId.split('-')[0];
+      updateTickerTimestamp(ticker);
+    }
   });
   
   // SELL button
@@ -297,6 +328,13 @@ function createDroppedIcon(zone, iconType, iconId = null, tradeState = 'none') {
     e.stopPropagation();
     toggleTradeState(iconWrapper, 'sell');
     updateActionButtonsAppearance(iconWrapper, buyBtn, sellBtn);
+    
+    // Update ticker timestamp
+    const cellId = iconWrapper.closest('.drop-zone')?.getAttribute('data-cell');
+    if (cellId) {
+      const ticker = cellId.split('-')[0];
+      updateTickerTimestamp(ticker);
+    }
   });
   
   actionButtons.appendChild(buyBtn);
@@ -449,10 +487,14 @@ function saveTickerStates() {
 
 // Save current state to localStorage
 function saveState() {
+  const savedState = localStorage.getItem(STORAGE_KEY);
+  let existingState = savedState ? JSON.parse(savedState) : {};
+  
   const state = {
     icons: [],
     tickerStates: {},
-    tickerExpectations: tickerExpectations
+    tickerExpectations: tickerExpectations,
+    tickerLastUpdated: existingState.tickerLastUpdated || {}
   };
   
   // Save ticker checkbox states
@@ -474,6 +516,22 @@ function saveState() {
   });
   
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// Update timestamp for a specific ticker
+function updateTickerTimestamp(ticker) {
+  const savedState = localStorage.getItem(STORAGE_KEY);
+  let state = savedState ? JSON.parse(savedState) : { icons: [], tickerStates: {}, tickerExpectations: {}, tickerLastUpdated: {} };
+  
+  if (!state.tickerLastUpdated) {
+    state.tickerLastUpdated = {};
+  }
+  
+  state.tickerLastUpdated[ticker] = Date.now();
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  
+  // Update the display immediately
+  updateTimestampDisplay(ticker);
 }
 
 // Load state from localStorage
@@ -539,7 +597,6 @@ function restoreExpectationStates() {
   Object.keys(tickerExpectations).forEach(ticker => {
     const buttonContainer = document.querySelector(`[data-button-container="${ticker}"]`);
     if (!buttonContainer) return;
-    
     const showAdviceBtn = buttonContainer.querySelector('.show-advice-btn');
     const generateBtn = buttonContainer.querySelector('.generate-expectation-btn');
     const container = document.querySelector(`.expectation-details[data-ticker="${ticker}"]`);
@@ -613,6 +670,67 @@ function restoreExpectationStates() {
       showAdviceBtn.classList.remove('hidden');
     }
   });
+}
+
+// Format time difference for display
+function formatTimeDifference(timestamp) {
+  const now = Date.now();
+  const diff = now - timestamp;
+  const seconds = Math.floor(diff / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const hours = Math.floor(minutes / 60);
+  const days = Math.floor(hours / 24);
+  
+  if (days > 0) {
+    return `${days} өдрийн өмнө өөрчилсөн`;
+  } else if (hours > 0) {
+    return `${hours} цагийн өмнө өөрчилсөн`;
+  } else if (minutes > 0) {
+    return `${minutes} минутын өмнө өөрчилсөн`;
+  } else if (seconds > 0) {
+    return `${seconds} секундын өмнө өөрчилсөн`;
+  } else {
+    return 'Дөнгөж сая өөрчилсөн';
+  }
+}
+
+// Update timestamp display for a ticker
+function updateTimestampDisplay(ticker) {
+  const timestampElement = document.querySelector(`.ticker-timestamp[data-ticker="${ticker}"]`);
+  if (!timestampElement) return;
+  
+  const savedState = localStorage.getItem(STORAGE_KEY);
+  if (!savedState) return;
+  
+  try {
+    const state = JSON.parse(savedState);
+    if (state.tickerLastUpdated && state.tickerLastUpdated[ticker]) {
+      const formattedTime = formatTimeDifference(state.tickerLastUpdated[ticker]);
+      timestampElement.textContent = formattedTime;
+    } else {
+      timestampElement.textContent = '';
+    }
+  } catch (error) {
+    console.error('Error updating timestamp display:', error);
+  }
+}
+
+// Update all timestamp displays
+function updateAllTimestampDisplays() {
+  tickers.forEach(ticker => {
+    if (ticker.checked) {
+      updateTimestampDisplay(ticker.ticker);
+    }
+  });
+}
+
+// Start periodic timestamp updates
+function startTimestampUpdater() {
+  // Update immediately
+  updateAllTimestampDisplays();
+  
+  // Update every 10 seconds
+  setInterval(updateAllTimestampDisplays, 10000);
 }
 
 // ============================================
@@ -720,6 +838,9 @@ function setupExpectationButtons() {
     
     // Save to localStorage
     saveState();
+    
+    // Update ticker timestamp
+    updateTickerTimestamp(currentQuestionTicker);
     
     // Update the expectation details container
     updateExpectationDetails(currentQuestionTicker, answers);
@@ -1015,6 +1136,11 @@ function deleteTickerData(ticker) {
       delete state.tickerExpectations[ticker];
     }
     
+    // Remove ticker timestamp
+    if (state.tickerLastUpdated && state.tickerLastUpdated[ticker]) {
+      delete state.tickerLastUpdated[ticker];
+    }
+    
     // Remove all icons associated with this ticker
     if (state.icons && state.icons.length > 0) {
       state.icons = state.icons.filter(icon => {
@@ -1179,4 +1305,3 @@ function startSessionTimer() {
   updateSessionBanner(); // Initial update
   setInterval(updateSessionBanner, 1000); // Update every second
 }
-
