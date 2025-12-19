@@ -11,3 +11,16 @@
 body {
   line-height: 1.5;
 }
+
+/* Glow animation for recently saved trades */
+@keyframes glow-pulse {
+  0% {
+    box-shadow: 0 0 10px rgba(229, 231, 235, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(229, 231, 235, 1);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(229, 231, 235, 0);
+  }
+}

@@ -101,6 +101,20 @@
         border-color: #f43f5e;
         color: #f43f5e;
       }
+      
+      /* Pulse glow animation for entry selection */
+      @keyframes pulseGlow {
+        0%, 100% {
+          box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
+        }
+        50% {
+          box-shadow: 0 0 30px rgba(244, 63, 94, 0.8), 0 0 40px rgba(244, 63, 94, 0.6);
+        }
+      }
+      
+      .entry-glow {
+        animation: pulseGlow 2s ease-in-out infinite;
+      }
     </style>
   </head>
   <body class="min-h-screen flex bg-gray-900">
@@ -115,12 +129,6 @@
         </svg>
       </button>
     </div>
-    
-    <!-- Clear Memory Button (Top Right) -->
-    <button id="clear-memory-btn" class="group fixed top-12 right-4 z-50 px-4 py-2 rounded-lg backdrop-blur-sm transition-all shadow-lg bg-transparent hover:bg-red-600/80 hover:px-4 px-2 duration-300">
-      <img src="./assets/trash-bin.svg" alt="Clear" class="w-6 h-6 group-hover:hidden transition-all">
-      <span class="hidden group-hover:inline text-white text-sm font-semibold whitespace-nowrap">Санах ой цэвэрлэх</span>
-    </button>
     
     <!-- Sticky Left Panel -->
     <div class="left-icon-panel fixed left-0 top-8 h-[calc(100vh-32px)] w-40 bg-white/20 backdrop-blur-md shadow-lg border-r border-white/30 p-4 flex flex-col gap-3 overflow-y-auto">
@@ -257,36 +265,90 @@
       </div>
     </div>
     
-    <div class="flex-1 flex items-center justify-center ml-40">
-      <div class="container max-w-4xl bg-white/30 backdrop-blur-md shadow-lg rounded-lg p-8 font-mono text-base transition-all ease-in-out delay-150">
-        
-        <!-- Minimized State Button (initially hidden) -->
-        <button id="maximize-btn" class="hidden w-full mb-6 p-3 bg-white/20 backdrop-blur-sm rounded-lg text-white font-semibold hover:bg-white/30 transition-all">
-          Тикер сонгох
-        </button>
-        
-        <!-- Expanded Header Section -->
-        <div id="header-section">
-          <h1 class="text-3xl font-bold text-center mb-8 text-white drop-shadow-lg">CVP-Тооцоолуур</h1>
+    <!-- Main Content Container - Split Layout -->
+    <div class="flex-1 flex gap-4 ml-40 p-4">
+      <!-- Left Panel - Trading Tables (60%) -->
+      <div class="w-[60%] flex items-center justify-center">
+        <div class="container max-w-4xl bg-white/30 backdrop-blur-md shadow-lg rounded-lg p-8 font-mono text-base transition-all ease-in-out delay-150 w-full">
           
-          <!-- Ticker Selection -->
-          <div class="mb-6 p-4 bg-white/20 backdrop-blur-sm rounded-lg relative">
-            <label class="block text-white font-semibold mb-3">Тикер сонгох:</label>
-            <div class="flex flex-wrap gap-4" id="ticker-checkboxes">
-              <!-- Checkboxes will be dynamically generated here -->
+          <!-- Minimized State Button (initially hidden) -->
+          <button id="maximize-btn" class="hidden w-full mb-6 p-3 bg-white/20 backdrop-blur-sm rounded-lg text-white font-semibold hover:bg-white/30 transition-all">
+            Тикер сонгох
+          </button>
+          
+          <!-- Expanded Header Section -->
+          <div id="header-section" class="relative">
+            <h1 class="text-3xl font-bold text-center mb-8 text-white drop-shadow-lg">CVP-Тооцоолуур</h1>
+            <button id="clear-memory-btn" class="group absolute top-0 right-0 px-3 py-1.5 rounded-lg backdrop-blur-sm transition-all shadow-md bg-transparent hover:bg-red-600/80 hover:px-3 px-1.5 duration-300">
+              <img src="./assets/trash-bin.svg" alt="Clear" class="w-5 h-5 group-hover:hidden transition-all">
+              <span class="hidden group-hover:inline text-white text-sm font-semibold whitespace-nowrap">Бүх хүснэгтийг цэвэрлэх</span>
+            </button>
+            
+            <!-- Ticker Selection -->
+            <div class="mb-6 p-4 bg-white/20 backdrop-blur-sm rounded-lg relative">
+              <label class="block text-white font-semibold mb-3">Тикер сонгох:</label>
+              <div class="flex flex-wrap gap-4" id="ticker-checkboxes">
+                <!-- Checkboxes will be dynamically generated here -->
+              </div>
+              
+              <!-- Minimize Button -->
+              <button id="minimize-btn" class="absolute top-3 right-3 px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-white text-sm font-semibold transition-all">
+                Хураах
+              </button>
             </div>
             
-            <!-- Minimize Button -->
-            <button id="minimize-btn" class="absolute top-3 right-3 px-3 py-1 bg-white/20 hover:bg-white/30 rounded text-white text-sm font-semibold transition-all">
-              Хураах
+            <hr class="border-white/30 mb-6">
+          </div>
+          
+          <!-- Tables will be dynamically generated here -->
+          <div id="tables-container"></div>
+        </div>
+      </div>
+      
+      <!-- Right Panel - Trading Journal (40%) - Sticky -->
+      <div class="w-[40%] flex items-start justify-center">
+        <div class="sticky top-12 container bg-white/30 backdrop-blur-md shadow-lg rounded-lg p-6 font-mono text-base w-full h-[calc(100vh-4rem)] flex flex-col">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-white drop-shadow-lg">Арилжааны Журнал</h2>
+            <button id="add-trade-btn" class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg shadow-md transition-all text-sm">
+              + Нэмэх
+            </button>
+            <button id="header-back-btn" class="hidden px-4 py-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-lg shadow-md transition-all text-sm">
+              ← Буцах
             </button>
           </div>
           
-          <hr class="border-white/30 mb-6">
+          <hr class="border-white/30 mb-4">
+          
+          <!-- Journal List Container (visible by default) -->
+          <div id="journal-list-container" class="flex-1 overflow-y-auto">
+            <div id="journal-entries-list" class="space-y-2">
+              <!-- Journal entries will be dynamically generated here -->
+            </div>
+          </div>
+          
+          <!-- Setup Selection Container (hidden by default) -->
+          <div id="journal-setup-container" class="hidden flex-1 overflow-y-auto">
+            <div id="journal-setup-options" class="space-y-3">
+              <!-- Setup buttons will be dynamically generated here -->
+            </div>
+          </div>
+          
+          <!-- Questionnaire Container (hidden by default) -->
+          <div id="journal-questionnaire-container" class="hidden flex-1 overflow-y-auto flex flex-col">
+            <form id="journal-questionnaire-form" class="flex-1 overflow-y-auto space-y-4">
+              <!-- Form will be dynamically generated here -->
+            </form>
+            <div class="flex justify-center gap-4 mt-4 pt-4 border-t border-white/30">
+              <button type="button" id="questionnaire-back-btn" class="px-6 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition-all">
+                Буцах
+              </button>
+              <button type="button" id="journal-save-btn" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-all">
+                Хадгалах
+              </button>
+            </div>
+          </div>
         </div>
-        
-        <!-- Tables will be dynamically generated here -->
-        <div id="tables-container"></div>
       </div>
     </div>
     
@@ -294,7 +356,7 @@
     <div id="confirm-modal" class="hidden fixed inset-0 z-[300] flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div class="bg-gray-800 rounded-lg shadow-2xl p-6 max-w-md w-full mx-4 border border-white/20">
         <h2 class="text-xl font-bold text-white mb-4">Анхааруулга</h2>
-        <p class="text-white/90 mb-6">Та вебсайтын санах ойг цэвэрлэх гэж байна. Хадгалагдсан тохиргоонууд бүгд устахыг анхаарна уу.</p>
+        <p class="text-white/90 mb-6">Бүх тикерийн ажлын талбарыг цэвэрлэх гэж байна. Энэ нь арилжааны журналд нөлөөлөхгүй. Үргэлжлүүлэх үү?</p>
         <div class="flex gap-3 justify-end">
           <button id="modal-cancel-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded transition-all">
             Болих
@@ -332,6 +394,22 @@
             Болих
           </button>
           <button id="delete-ticker-ok-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded transition-all">
+            Устгах
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Delete Trade Confirmation Modal -->
+    <div id="delete-trade-modal" class="hidden fixed inset-0 z-[300] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+      <div class="bg-gray-800 rounded-lg shadow-2xl p-6 max-w-md w-full mx-4 border border-white/20">
+        <h2 id="delete-trade-title" class="text-lg font-semibold text-white mb-4"></h2>
+        <p class="text-white/90 mb-6">Та энэ арилжааны түүхийг журналаас устгах гэж байна.</p>
+        <div class="flex gap-3 justify-end">
+          <button id="delete-trade-cancel-btn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded transition-all">
+            Болих
+          </button>
+          <button id="delete-trade-ok-btn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded transition-all">
             Устгах
           </button>
         </div>
@@ -431,8 +509,19 @@
       </div>
     </div>
     
+    <!-- Image Zoom Modal -->
+    <div id="image-zoom-modal" class="hidden fixed inset-0 z-[400] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <button id="close-zoom-btn" class="absolute top-4 right-4 w-10 h-10 flex items-center justify-center text-white hover:bg-white/20 rounded-full transition-all" title="Хаах">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+      <img id="zoomed-image" src="" alt="" class="max-w-full max-h-full object-contain rounded-lg">
+    </div>
+    
     <script src="./expectation-advice.js"></script>
     <script src="./component.js"></script>
+    <script src="./trading-journal.js"></script>
     <script src="./script.js"></script>
   </body>
   

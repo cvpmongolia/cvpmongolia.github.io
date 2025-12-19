@@ -37,6 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
   restoreExpectationStates(); // Restore expectation UI states
   setupBannerClose(); // Setup banner close button
   startTimestampUpdater(); // Start periodic timestamp updates
+  
+  // Initialize trading journal
+  if (typeof TradingJournal !== 'undefined') {
+    TradingJournal.initialize();
+  }
 });
 
 // ============================================
@@ -1166,8 +1171,8 @@ function deleteTickerData(ticker) {
 function setupBannerClose() {
   const closeBtn = document.getElementById('close-banner-btn');
   const banner = document.getElementById('session-banner');
-  const clearMemoryBtn = document.getElementById('clear-memory-btn');
   const leftPanel = document.querySelector('.left-icon-panel');
+  const journalPanel = document.querySelector('.w-\\[40\\%\\] > .sticky');
   
   if (closeBtn && banner) {
     closeBtn.addEventListener('click', () => {
@@ -1175,15 +1180,17 @@ function setupBannerClose() {
       document.body.style.paddingTop = '0';
       
       // Adjust positions of other fixed elements
-      if (clearMemoryBtn) {
-        clearMemoryBtn.classList.remove('top-12');
-        clearMemoryBtn.classList.add('top-4');
-      }
       if (leftPanel) {
         leftPanel.classList.remove('top-8');
         leftPanel.classList.remove('h-[calc(100vh-32px)]');
         leftPanel.classList.add('top-0');
         leftPanel.classList.add('h-screen');
+      }
+      if (journalPanel) {
+        journalPanel.classList.remove('top-12');
+        journalPanel.classList.remove('h-[calc(100vh-4rem)]');
+        journalPanel.classList.add('top-4');
+        journalPanel.classList.add('h-[calc(100vh-2rem)]');
       }
     });
   }
