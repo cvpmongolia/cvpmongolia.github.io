@@ -3426,7 +3426,7 @@ function generateReportDisplay(dateRange) {
           <p class="text-xs text-white/50">${fin.totalWins}W / ${fin.totalLosses}L</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
-          <p class="text-xs text-white/60 mb-1">Profit Factor</p>
+          <p class="text-xs text-white/60 mb-1">Ашиг–алдагдлын харьцаа (Profit Factor)</p>
           <p class="text-2xl font-bold text-yellow-400">${fin.profitFactor === Infinity ? '∞' : fin.profitFactor.toFixed(2)}</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
@@ -3434,7 +3434,7 @@ function generateReportDisplay(dateRange) {
           <p class="text-2xl font-bold text-purple-400">${fin.avgRR.toFixed(2)}</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
-          <p class="text-xs text-white/60 mb-1">Дундаж ялалт</p>
+          <p class="text-xs text-white/60 mb-1">Дундаж ашиг</p>
           <p class="text-lg font-bold text-green-400">$${fin.avgWin.toFixed(2)}</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
@@ -3442,7 +3442,7 @@ function generateReportDisplay(dateRange) {
           <p class="text-lg font-bold text-red-400">$${fin.avgLoss.toFixed(2)}</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
-          <p class="text-xs text-white/60 mb-1">Хамгийн их ялалт</p>
+          <p class="text-xs text-white/60 mb-1">Хамгийн их ашиг</p>
           <p class="text-lg font-bold text-green-400">$${fin.largestWin.toFixed(2)}</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
@@ -3460,15 +3460,15 @@ function generateReportDisplay(dateRange) {
       <h3 class="text-lg font-bold mb-4 text-green-400">📊 Арилжааны Задаргаа</h3>
       <div class="grid grid-cols-3 gap-4 mb-4">
         <div class="p-4 bg-white/10 rounded-lg">
-          <p class="text-xs text-white/60 mb-1">Break-even</p>
+          <p class="text-xs text-white/60 mb-1">Break-Even арилжаа</p>
           <p class="text-2xl font-bold text-yellow-400">${bd.breakEvenCount}</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
-          <p class="text-xs text-white/60 mb-1">Safe Rule</p>
+          <p class="text-xs text-white/60 mb-1">Safe-ийн дүрэм биелэлт</p>
           <p class="text-2xl font-bold text-blue-400">${bd.safeRulePercentage.toFixed(1)}%</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
-          <p class="text-xs text-white/60 mb-1">Safe Rule дагасан</p>
+          <p class="text-xs text-white/60 mb-1">Safe-ийн дүрэм дагасан</p>
           <p class="text-2xl font-bold text-blue-400">${bd.safeRuleFollowed}/${report.totalEntries}</p>
         </div>
       </div>
@@ -3573,7 +3573,7 @@ function generateReportDisplay(dateRange) {
       <h3 class="text-lg font-bold mb-4 text-pink-400">⭐ Чанарын Үзүүлэлт</h3>
       <div class="grid grid-cols-2 gap-4 mb-4">
         <div class="p-4 bg-white/10 rounded-lg">
-          <p class="text-xs text-white/60 mb-1">Дундаж оноо</p>
+          <p class="text-xs text-white/60 mb-1">Дундаж арилжааны оноо (CVP алгоритмын биелэлт)</p>
           <p class="text-2xl font-bold text-yellow-400">${qual.avgScore.toFixed(1)}</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
@@ -3612,18 +3612,18 @@ function generateReportDisplay(dateRange) {
   const risk = report.risk;
   html += `
     <div class="mb-6">
-      <h3 class="text-lg font-bold mb-4 text-yellow-400">🔥 Streak & Эрсдэл</h3>
+      <h3 class="text-lg font-bold mb-4 text-yellow-400">🔥 Дараалсан Ялалт ба Хожигдол</h3>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="p-4 bg-white/10 rounded-lg">
           <p class="text-xs text-white/60 mb-1">Одоогийн streak</p>
           <p class="text-2xl font-bold ${streaks.currentStreak >= 0 ? 'text-green-400' : 'text-red-400'}">${streaks.currentStreak > 0 ? '+' : ''}${streaks.currentStreak}</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
-          <p class="text-xs text-white/60 mb-1">Хамгийн урт ялалт</p>
+          <p class="text-xs text-white/60 mb-1">Хамгийн урт Winstreak</p>
           <p class="text-2xl font-bold text-green-400">${streaks.longestWinStreak}</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
-          <p class="text-xs text-white/60 mb-1">Хамгийн урт хожигдол</p>
+          <p class="text-xs text-white/60 mb-1">Хамгийн урт Losestreak</p>
           <p class="text-2xl font-bold text-red-400">${streaks.longestLossStreak}</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
