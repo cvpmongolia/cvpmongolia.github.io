@@ -39,7 +39,19 @@ const TradingReport = (() => {
 
   // Calculate financial metrics
   const calculateFinancialMetrics = (entries) => {
-    const trades = entries.filter(e => e.answers.result && e.answers.reward && e.answers.risk);
+    // Identify Break-Even trades (Loss + Safe Rule followed = $0 P/L)
+    const beTrades = entries.filter(e => 
+      e.answers.result === 'Loss' && e.answers.safe_rule === 'Тийм'
+    );
+    
+    // Only process non-BE trades for financial metrics
+    const trades = entries.filter(e => {
+      // Must have result, reward, and risk
+      if (!e.answers.result || !e.answers.reward || !e.answers.risk) return false;
+      // Exclude BE trades (they contribute $0 to P/L)
+      if (e.answers.result === 'Loss' && e.answers.safe_rule === 'Тийм') return false;
+      return true;
+    });
     
     let totalPL = 0;
     let totalWins = 0;
@@ -82,7 +94,8 @@ const TradingReport = (() => {
       }
     });
 
-    const totalTrades = totalWins + totalLosses;
+    // Total trades includes BE trades (they count toward trade count but not P/L)
+    const totalTrades = totalWins + totalLosses + beTrades.length;
     const winRate = totalTrades > 0 ? (totalWins / totalTrades) * 100 : 0;
     const avgWin = totalWins > 0 ? totalWinAmount / totalWins : 0;
     const avgLoss = totalLosses > 0 ? totalLossAmount / totalLosses : 0;
@@ -220,8 +233,13 @@ const TradingReport = (() => {
       negative: entries.filter(e => (e.score || 0) < 0).length
     };
 
-    // Correlation: Score vs Outcome
-    const tradesWithResult = entries.filter(e => e.answers.result && e.score !== undefined);
+    // Correlation: Score vs Outcome (exclude BE trades for consistency)
+    const tradesWithResult = entries.filter(e => {
+      if (!e.answers.result || e.score === undefined) return false;
+      // Exclude BE trades from correlation (they're neutral $0 outcomes)
+      if (e.answers.result === 'Loss' && e.answers.safe_rule === 'Тийм') return false;
+      return true;
+    });
     const winningTrades = tradesWithResult.filter(e => e.answers.result === 'Win');
     const losingTrades = tradesWithResult.filter(e => e.answers.result === 'Loss');
 
@@ -245,9 +263,14 @@ const TradingReport = (() => {
   const calculateStreaks = (entries) => {
     if (entries.length === 0) return { currentStreak: 0, longestWinStreak: 0, longestLossStreak: 0 };
 
-    // Sort by timestamp (oldest first)
+    // Sort by timestamp (oldest first) and exclude BE trades (they don't affect streaks)
     const sorted = [...entries]
-      .filter(e => e.answers.result)
+      .filter(e => {
+        if (!e.answers.result) return false;
+        // Exclude BE trades from streak calculation
+        if (e.answers.result === 'Loss' && e.answers.safe_rule === 'Тийм') return false;
+        return true;
+      })
       .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
 
     let currentStreak = 0;
