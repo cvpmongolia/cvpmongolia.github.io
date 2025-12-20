@@ -2729,6 +2729,29 @@ function calculateQuestionScore(questionId, answer) {
   if (questionId === 'q_test_break_manipulation') {
     return answer === 'Тийм' ? 10 : -10;
   }
+
+  // COUNTER_TREND specific questions (Setups 14-15)
+  if (questionId === 'q_counter_profile_shift') {
+    return answer === 'Тийм' ? 10 : -10;
+  }
+
+  if (questionId === 'q_counter_wbp_cluster') {
+    const points = {'StoppingAction': 10, 'Цохилт': -5, 'Энгийн': 0};
+    return points[answer] || 0;
+  }
+
+  if (questionId === 'q_counter_entry_cluster') {
+    const points = {'Цохилт': 10, 'Энгийн түлхэлт': 5, 'StoppingAction': -10};
+    return points[answer] || 0;
+  }
+
+  if (questionId === 'q_counter_small_profile') {
+    return answer === expectedDirection ? 10 : -10;
+  }
+
+  if (questionId === 'q_counter_small_constructor') {
+    return answer === expectedDirection ? 10 : -10;
+  }
   
   return 0;
 }
