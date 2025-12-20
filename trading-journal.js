@@ -3527,7 +3527,17 @@ function generateReportDisplay(dateRange) {
           <p class="text-xs text-white/50">${fin.totalWins}W / ${fin.totalLosses}L</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
-          <p class="text-xs text-white/60 mb-1">Ашиг–алдагдлын харьцаа (Profit Factor)</p>
+          <p class="text-xs text-white/60 mb-1 flex items-center gap-1">
+            Ашиг–алдагдлын харьцаа (Profit Factor)
+            <span class="info-icon relative cursor-help inline-flex items-center justify-center w-4 h-4 text-[10px] border border-white/40 rounded-full hover:bg-white/20 transition-all" title="">
+              ?
+              <span class="info-tooltip hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2 bg-gray-900 text-white text-[11px] rounded-lg shadow-xl border border-white/20 z-50 whitespace-normal text-left leading-relaxed">
+                <strong class="text-green-400">&gt; 1.0</strong> = Ашигтай (илүү олж байна)<br>
+                <strong class="text-yellow-400">= 1.0</strong> = Break-even<br>
+                <strong class="text-red-400">&lt; 1.0</strong> = Алдагдалтай (илүү алдаж байна)
+              </span>
+            </span>
+          </p>
           <p class="text-2xl font-bold text-yellow-400">${fin.profitFactor === Infinity ? '∞' : fin.profitFactor.toFixed(2)}</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
@@ -3678,7 +3688,17 @@ function generateReportDisplay(dateRange) {
           <p class="text-2xl font-bold text-yellow-400">${qual.avgScore.toFixed(1)}</p>
         </div>
         <div class="p-4 bg-white/10 rounded-lg">
-          <p class="text-xs text-white/60 mb-1">Оноо-үр дүнгийн корреляци</p>
+          <p class="text-xs text-white/60 mb-1 flex items-center gap-1">
+            Оноо-үр дүнгийн корреляци
+            <span class="info-icon relative cursor-help inline-flex items-center justify-center w-4 h-4 text-[10px] border border-white/40 rounded-full hover:bg-white/20 transition-all" title="">
+              ?
+              <span class="info-tooltip hidden absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 p-2 bg-gray-900 text-white text-[11px] rounded-lg shadow-xl border border-white/20 z-50 whitespace-normal text-left leading-relaxed">
+                <strong class="text-green-400">Эерэг (+)</strong>: Ашигтай арилжааны дундаж оноо илүү өндөр<br>
+                <strong class="text-red-400">Сөрөг (-)</strong>: Алдагдалтай арилжааны дундаж оноо илүү өндөр<br>
+                <strong class="text-yellow-400">~0</strong>: Корреляци байхгүй
+              </span>
+            </span>
+          </p>
           <p class="text-2xl font-bold ${qual.scoreCorrelation >= 0 ? 'text-green-400' : 'text-red-400'}">${qual.scoreCorrelation > 0 ? '+' : ''}${qual.scoreCorrelation.toFixed(1)}</p>
           <p class="text-xs text-white/50">Ялалт: ${qual.avgScoreWins.toFixed(1)} | Хожигдол: ${qual.avgScoreLosses.toFixed(1)}</p>
         </div>
@@ -3757,6 +3777,20 @@ function generateReportDisplay(dateRange) {
   }
   
   reportContent.innerHTML = html;
+  
+  // Setup info icon tooltips
+  const infoIcons = reportContent.querySelectorAll('.info-icon');
+  infoIcons.forEach(icon => {
+    icon.addEventListener('mouseenter', () => {
+      const tooltip = icon.querySelector('.info-tooltip');
+      if (tooltip) tooltip.classList.remove('hidden');
+    });
+    
+    icon.addEventListener('mouseleave', () => {
+      const tooltip = icon.querySelector('.info-tooltip');
+      if (tooltip) tooltip.classList.add('hidden');
+    });
+  });
 }
 
 // Export functions for use in main script
