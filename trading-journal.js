@@ -2252,6 +2252,96 @@ function showQuestionnaire(entry = null) {
     const existingScrollBtn = document.querySelector('.scroll-to-bottom-btn');
     if (existingScrollBtn) existingScrollBtn.remove();
   }
+  
+  // Add floating score indicator (for both editing and creating)
+  const existingScoreIndicator = questionnaireContainer.querySelector('.live-score-indicator');
+  if (existingScoreIndicator) existingScoreIndicator.remove();
+  
+  const scoreIndicator = document.createElement('div');
+  scoreIndicator.className = 'live-score-indicator fixed bg-gradient-to-r from-purple-600 to-blue-600 text-white rounded-lg shadow-2xl transition-all';
+  scoreIndicator.style.top = '5.5rem';
+  scoreIndicator.style.right = '1.5rem';
+  scoreIndicator.style.zIndex = '100';
+  scoreIndicator.style.padding = '0.75rem 1.25rem';
+  scoreIndicator.style.minWidth = '120px';
+  scoreIndicator.innerHTML = `
+    <div class="text-xs font-semibold mb-1 text-white/80">LIVE ОНОО</div>
+    <div class="text-3xl font-bold" id="live-score-value">0</div>
+  `;
+  
+  // Hide initially if creating new entry (will be shown when BUY/SELL is selected)
+  if (!entry) {
+    scoreIndicator.style.opacity = '0';
+    scoreIndicator.style.pointerEvents = 'none';
+  }
+  
+  questionnaireContainer.appendChild(scoreIndicator);
+  
+  // Add event listeners to all form inputs for real-time score calculation
+  setupLiveScoreCalculation();
+}
+
+// Setup live score calculation
+function setupLiveScoreCalculation() {
+  const form = document.getElementById('journal-questionnaire-form');
+  if (!form) return;
+  
+  // Calculate and update score
+  const updateLiveScore = () => {
+    const scoreValueElement = document.getElementById('live-score-value');
+    if (!scoreValueElement) return;
+    
+    // Collect current answers
+    const answers = {};
+    const inputs = form.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+      if (input.type === 'radio') {
+        if (input.checked) {
+          answers[input.name] = input.value;
+        }
+      } else if (input.type === 'checkbox') {
+        answers[input.name] = input.checked;
+      } else if (input.tagName === 'SELECT') {
+        answers[input.name] = input.value;
+      } else if (input.tagName === 'TEXTAREA') {
+        answers[input.name] = input.value;
+      } else if (input.type === 'number' || input.type === 'text') {
+        answers[input.name] = input.value;
+      }
+    });
+    
+    // Calculate score using existing assessment function
+    const score = calculateAssessment(answers);
+    
+    // Update display with animation
+    scoreValueElement.textContent = score;
+    
+    // Color code based on score
+    const indicator = document.querySelector('.live-score-indicator');
+    if (indicator) {
+      if (score >= 70) {
+        indicator.style.background = 'linear-gradient(to right, #16a34a, #22c55e)'; // Green
+      } else if (score >= 50) {
+        indicator.style.background = 'linear-gradient(to right, #2563eb, #3b82f6)'; // Blue
+      } else if (score >= 30) {
+        indicator.style.background = 'linear-gradient(to right, #eab308, #facc15)'; // Yellow
+      } else if (score >= 0) {
+        indicator.style.background = 'linear-gradient(to right, #ea580c, #f97316)'; // Orange
+      } else {
+        indicator.style.background = 'linear-gradient(to right, #dc2626, #ef4444)'; // Red
+      }
+    }
+  };
+  
+  // Initial calculation
+  updateLiveScore();
+  
+  // Add listeners to all inputs
+  const inputs = form.querySelectorAll('input, select, textarea');
+  inputs.forEach(input => {
+    input.addEventListener('change', updateLiveScore);
+    input.addEventListener('input', updateLiveScore);
+  });
 }
 
 // Reset journal view to list
@@ -2277,6 +2367,10 @@ function resetJournalView() {
   // Remove scroll-to-bottom button if exists
   const scrollBtn = document.querySelector('.scroll-to-bottom-btn');
   if (scrollBtn) scrollBtn.remove();
+  
+  // Remove live score indicator if exists
+  const scoreIndicator = document.querySelector('.live-score-indicator');
+  if (scoreIndicator) scoreIndicator.remove();
   
   // Show list, hide others
   if (listContainer) listContainer.classList.remove('hidden');
@@ -2345,6 +2439,13 @@ function createEntryDirectionGroup() {
       const questionsWrapper = document.getElementById('questions-wrapper');
       if (questionsWrapper) {
         questionsWrapper.classList.remove('opacity-30', 'pointer-events-none');
+        
+        // Show live score indicator
+        const scoreIndicator = document.querySelector('.live-score-indicator');
+        if (scoreIndicator) {
+          scoreIndicator.style.opacity = '1';
+          scoreIndicator.style.pointerEvents = 'auto';
+        }
         
         // Scroll just enough to hide the BUY/SELL buttons and show first question
         const form = document.getElementById('journal-questionnaire-form');
