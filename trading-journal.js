@@ -2169,6 +2169,31 @@ function showQuestionnaire(entry = null) {
     });
   }
   
+  // Update journal title based on mode
+  const journalTitle = document.getElementById('journal-title');
+  const addBtn = document.getElementById('add-trade-btn');
+  const headerBackBtn = document.getElementById('header-back-btn');
+  
+  if (journalTitle) {
+    if (entry) {
+      // Editing mode: show entry number and setup name
+      const entryIndex = journalEntries.findIndex(e => e.id === entry.id) + 1;
+      const setupName = setup?.name || 'Unknown Setup';
+      journalTitle.textContent = `${entryIndex}. ${setupName}`;
+    } else {
+      // Creating mode: show default title
+      journalTitle.textContent = 'Арилжааны Журнал';
+    }
+  }
+  
+  // Toggle header buttons based on mode
+  if (entry) {
+    // Editing mode: hide both buttons
+    if (addBtn) addBtn.classList.add('hidden');
+    if (headerBackBtn) headerBackBtn.classList.add('hidden');
+  }
+  // Note: In creating mode, buttons are already toggled by showSetupSelection()
+  
   // Hide setup selection, show questionnaire
   if (listContainer) listContainer.classList.add('hidden');
   if (setupContainer) setupContainer.classList.add('hidden');
@@ -2224,6 +2249,12 @@ function resetJournalView() {
   const questionnaireContainer = document.getElementById('journal-questionnaire-container');
   const addBtn = document.getElementById('add-trade-btn');
   const headerBackBtn = document.getElementById('header-back-btn');
+  
+  // Reset journal title
+  const journalTitle = document.getElementById('journal-title');
+  if (journalTitle) {
+    journalTitle.textContent = 'Арилжааны Журнал';
+  }
   
   // Reset current setup and trade ID
   currentSetup = null;
