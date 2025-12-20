@@ -1900,6 +1900,7 @@ function showQuestionnaire(entry = null) {
   
   // Group 4: Result tracking (optional)
   const resultGroup = document.createElement('div');
+  resultGroup.id = 'result-group';
   resultGroup.className = 'mb-6 p-4 bg-white/10 rounded-lg';
   
   const resultTitle = document.createElement('h3');
@@ -2224,10 +2225,14 @@ function showQuestionnaire(entry = null) {
     scrollBtn.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
+      const resultGroup = document.getElementById('result-group');
       const form = document.getElementById('journal-questionnaire-form');
-      if (form) {
+      if (resultGroup && form) {
+        // Get the position of result group relative to the form
+        const resultPosition = resultGroup.offsetTop;
+        
         form.scrollTo({
-          top: form.scrollHeight-100,
+          top: resultPosition - 100, // Offset to show title clearly
           behavior: 'smooth'
         });
       }
