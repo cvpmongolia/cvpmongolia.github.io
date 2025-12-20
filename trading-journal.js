@@ -2635,7 +2635,7 @@ function createQuestionGroup(question, questionNumber, titleColor = null) {
     input.step = '0.1';
     input.min = '0';
     input.className = 'w-full px-4 py-2 bg-white/10 text-white rounded-lg border-2 border-white/30 focus:border-blue-500 focus:outline-none';
-    input.placeholder = question.placeholder || 'Автоматаар тооцогдоно. Жишээ: 2, 3, 1.5 ...';
+    input.placeholder = question.placeholder || 'Автоматаар тооцогдоно. Жишээ: 2, 3, 1.5';
     wrapper.appendChild(input);
   } else if (question.type === 'text') {
     const textarea = document.createElement('textarea');
