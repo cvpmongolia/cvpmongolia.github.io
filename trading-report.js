@@ -46,10 +46,13 @@ const TradingReport = (() => {
     
     // Only process non-BE trades for financial metrics
     const trades = entries.filter(e => {
-      // Must have result, reward, and risk
-      if (!e.answers.result || !e.answers.reward || !e.answers.risk) return false;
+      // Must have result and risk
+      if (!e.answers.result || !e.answers.risk) return false;
       // Exclude BE trades (they contribute $0 to P/L)
       if (e.answers.result === 'Loss' && e.answers.safe_rule === 'Тийм') return false;
+      // For Win trades, must have reward (invalid otherwise)
+      if (e.answers.result === 'Win' && !e.answers.reward) return false;
+      // For Loss trades, reward is optional (pure loss = no reward)
       return true;
     });
     
