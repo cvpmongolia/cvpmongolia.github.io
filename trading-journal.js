@@ -1544,6 +1544,11 @@ function showSetupSelection(resetScroll = true) {
   if (resetScroll && setupContainer) {
     setupContainer.scrollTop = 0;
   }
+  
+  // Auto-focus search input for immediate typing
+  setTimeout(() => {
+    searchInput.focus();
+  }, 100);
 }
 
 // Select setup and show questionnaire
