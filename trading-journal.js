@@ -2242,7 +2242,7 @@ function showQuestionnaire(entry = null) {
     scrollBtn.style.bottom = '6.8rem';
     scrollBtn.style.right = '3rem';
     scrollBtn.style.zIndex = '50';
-    scrollBtn.title = 'Хамгийн доош шилжих';
+    scrollBtn.title = 'Арилжааны үр дүн рүү шилжих';
     scrollBtn.innerHTML = `
       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
